@@ -39,12 +39,13 @@ id expense
 if [ $? -ne 0 ]
 then
     useradd expense
+    if [ $? -ne 0 ]
     then
-    echo "FAILED"
-    exit 1
-    else
-        echo "SUCCESS"
-    fi
+        echo "FAILED"
+        exit 1
+        else
+            echo "SUCCESS"
+        fi
 else
     echo "User already exist"
 fi
