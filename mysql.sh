@@ -28,7 +28,7 @@ VALIDATION $? "Enabled the mysqld"
 systemctl start mysqld
 VALIDATION $? "Started the mysqld"
 
-mysql -h 32.197.42.62 -u root -pExpenseApp@1 -e 'show databases;'
+mysql -h 34.231.241.168 -u root -pExpenseApp@1 -e 'show databases;'
 if [ $? -ne 0 ]
 then
     echo "MySQL root password not setup"
