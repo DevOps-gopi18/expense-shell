@@ -56,7 +56,7 @@ cp /root/expense-shell/backend.service /etc/systemd/system/backend.service
 dnf install mysql -y
 VALIDATION $? "Installing MySQL"
 
-mysql -h 32.197.42.62 -uroot -pExpenseApp@1 < /app/schema/backend.sql
+mysql -h 34.231.241.168 -uroot -pExpenseApp@1 < /app/schema/backend.sql
 VALIDATION $? "Logging into MySQL server"
 
 systemctl daemon-reload
