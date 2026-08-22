@@ -2,6 +2,16 @@
 
 USERID=$(id -u)
 
+VALIDATION() {
+    if [ $1 -ne 0 ]
+    then
+        echo "$2...FAILED"
+        exit 1
+    else
+        echo "$2...SUCCESS"
+    fi
+}
+
 if [ $USERID -ne 0 ]
 then
     echo "ERROR: You don't have root access to execute the program"
@@ -9,82 +19,28 @@ then
 fi
 
 dnf install nginx -y
-if [ $? -ne 0 ]
-then
-    echo "FAILED"
-    exit 1
-else
-    echo "SUCCESS"
-fi
+VALIDATION $? "Installing Nginx"
 
 systemctl enable nginx
-if [ $? -ne 0 ]
-then
-    echo "FAILED"
-    exit 1
-else
-    echo "SUCCESS"
-fi
+VALIDATION $? "Enable nginx"
 
 systemctl start nginx
-if [ $? -ne 0 ]
-then
-    echo "FAILED"
-    exit 1
-else
-    echo "SUCCESS"
-fi
+VALIDATION $? "Start nginx"
 
 rm -rf /usr/share/nginx/html/*
-if [ $? -ne 0 ]
-then
-    echo "FAILED"
-    exit 1
-else
-    echo "SUCCESS"
-fi
+VALIDATION $? "Removing deafult html content"
 
 curl -o /tmp/frontend.zip https://expense-builds.s3.us-east-1.amazonaws.com/expense-frontend-v2.zip
-if [ $? -ne 0 ]
-then
-    echo "FAILED"
-    exit 1
-else
-    echo "SUCCESS"
-fi
+VALIDATION $? "Downloading files"
 
 cd /usr/share/nginx/html
-if [ $? -ne 0 ]
-then
-    echo "FAILED"
-    exit 1
-else
-    echo "SUCCESS"
-fi
+VALIDATION $? "Navigating to nginx path"
 
 unzip /tmp/frontend.zip
-if [ $? -ne 0 ]
-then
-    echo "FAILED"
-    exit 1
-else
-    echo "SUCCESS"
-fi
+VALIDATION $? "unzip files"
 
 cp /root/expense-shell/expense.conf /etc/nginx/default.d/expense.conf
-if [ $? -ne 0 ]
-then
-    echo "FAILED"
-    exit 1
-else
-    echo "SUCCESS"
-fi
+VALIDATION $? "Copying config file"
 
 systemctl restart nginx
-if [ $? -ne 0 ]
-then
-    echo "FAILED"
-    exit 1
-else
-    echo "SUCCESS"
-fi
+VALIDATION $? "Restarting nginx"

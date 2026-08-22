@@ -2,6 +2,16 @@
 
 USERID=$(id -u)
 
+VALIDATION() {
+    if [ $1 -ne 0 ]
+    then
+        echo "$2...FAILED"
+        exit 1
+    else
+        echo "$2...SUCCESS"
+    fi
+}
+
 if [ $USERID -ne 0 ]
 then
     echo "ERROR: You don't have root access to execute the program"
@@ -9,138 +19,54 @@ then
 fi
 
 dnf module disable nodejs -y
-if [ $? -ne 0 ]
-then
-    echo "FAILED"
-    exit 1
-else
-    echo "SUCCESS"
-fi
+VALIDATION $? "Disabled the nodejs"
 
 dnf module enable nodejs:20 -y
-if [ $? -ne 0 ]
-then
-    echo "FAILED"
-    exit 1
-else
-    echo "SUCCESS"
-fi
+VALIDATION $? "Enabled the nodejs 20"
 
 dnf install nodejs -y
-if [ $? -ne 0 ]
-then
-    echo "FAILED"
-    exit 1
-else
-    echo "SUCCESS"
-fi
+VALIDATION $? "Install the nodejs"
 
 id expense
 if [ $? -ne 0 ]
 then
     useradd expense
-    if [ $? -ne 0 ]
-    then
-        echo "FAILED"
-        exit 1
-        else
-            echo "SUCCESS"
-        fi
+    VALIDATION $? "creating the user expense"
 else
     echo "User already exist"
 fi
 
 mkdir -p /app
-if [ $? -ne 0 ]
-then
-    echo "FAILED"
-    exit 1
-else
-    echo "SUCCESS"
-fi
+VALIDATION $? "creating the /app directory"
 
 curl -o /tmp/backend.zip https://expense-builds.s3.us-east-1.amazonaws.com/expense-backend-v2.zip
-if [ $? -ne 0 ]
-then
-    echo "FAILED"
-    exit 1
-else
-    echo "SUCCESS"
-fi
+VALIDATION $? "downloading the files"
 
 cd /app
 rm -rf /app/*
 
 unzip /tmp/backend.zip
-if [ $? -ne 0 ]
-then
-    echo "FAILED"
-    exit 1
-else
-    echo "SUCCESS"
-fi
+VALIDATION $? "unzip the files"
 
 npm install
-if [ $? -ne 0 ]
-then
-    echo "FAILED"
-    exit 1
-else
-    echo "SUCCESS"
-fi
+VALIDATION $? "installing dependencies"
 
 cp /root/expense-shell/backend.service /etc/systemd/system/backend.service
 
 dnf install mysql -y
-if [ $? -ne 0 ]
-then
-    echo "FAILED"
-    exit 1
-else
-    echo "SUCCESS"
-fi
+VALIDATION $? "Installing MySQL"
 
 mysql -h 32.197.42.62 -uroot -pExpenseApp@1 < /app/schema/backend.sql
-if [ $? -ne 0 ]
-then
-    echo "FAILED"
-    exit 1
-else
-    echo "SUCCESS"
-fi
+VALIDATION $? "Logging into MySQL server"
 
 systemctl daemon-reload
-if [ $? -ne 0 ]
-then
-    echo "FAILED"
-    exit 1
-else
-    echo "SUCCESS"
-fi
+VALIDATION $? "daemon reload"
 
 systemctl start backend
-if [ $? -ne 0 ]
-then
-    echo "FAILED"
-    exit 1
-else
-    echo "SUCCESS"
-fi
+VALIDATION $? "Start backend"
 
 systemctl enable backend
-if [ $? -ne 0 ]
-then
-    echo "FAILED"
-    exit 1
-else
-    echo "SUCCESS"
-fi
+VALIDATION $? "Enable backend"
 
 systemctl restart backend
-if [ $? -ne 0 ]
-then
-    echo "FAILED"
-    exit 1
-else
-    echo "SUCCESS"
-fi
+VALIDATION $? "Restart backend"

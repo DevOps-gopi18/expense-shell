@@ -2,6 +2,16 @@
 
 USERID=$(id -u)
 
+VALIDATION(){
+    if [ $1 -ne 0 ]
+    then
+        echo "$2...FAILED"
+        exit 1
+    else
+        echo "$2....SUCCESS"
+    fi
+}
+
 if [ $USERID -ne 0 ]
 then
     echo " ERROR: You don't have root access to execute the program"
@@ -9,45 +19,21 @@ then
 fi
 
 dnf install mysql-server -y
+VALIDATION $? "Installing MySQL server"
 
-if [ $? -ne 0 ]
-then
-    echo "MySQL installation...FAILED"
-    exit 1
-else
-    echo "MySQL installation....SUCCESS"
-fi
 
 systemctl enable mysqld
-if [ $? -ne 0 ]
-then
-    echo "unable to load the mysqld service"
-    exit 1
-else
-    echo "MySQL enabled"
-fi
+VALIDATION $? "Enabled the mysqld"
 
 systemctl start mysqld
-if [ $? -ne 0 ]
-then
-    echo "unable to load the mysqld service"
-    exit 1
-else
-    echo "MySQL started"
-fi
+VALIDATION $? "Started the mysqld"
 
 mysql -h 32.197.42.62 -u root -pExpenseApp@1 -e 'show databases;'
 if [ $? -ne 0 ]
 then
     echo "MySQL root password not setup"
     mysql_secure_installation --set-root-pass ExpenseApp@1
-    if [ $? -ne 0 ]
-    then
-        echo "FAILED"
-        exit 1
-    else
-        echo "SUCCESS"
-    fi
+    VALIDATION $? "Setting up the root password"
 else
     echo "MySQL root password already setup...SKIPPING"
 fi
